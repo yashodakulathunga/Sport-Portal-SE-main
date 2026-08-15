@@ -18,6 +18,7 @@ export default function GalleryPage() {
         const res = await fetch(`${API_URL}/api/gallery`);
         if (!res.ok) throw new Error('Failed to fetch');
         const data = await res.json();
+        console.log("GALLERY DATA:", data);
 
         // Transform backend data to frontend structure
         // Backend: [{ category: 'Cricket', images: [{ url, caption }] }]
