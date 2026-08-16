@@ -73,7 +73,7 @@ export default function AdminDashboard() {
             const savedUser = localStorage.getItem("user");
             if (!savedUser) return;
             const token = localStorage.getItem("token");
-            const API_URL = ""; // Use relative path for proxy support
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
             // Helper to fetch and set state with error handling
             const safeFetch = async (endpoint, setter, headers = {}) => {
