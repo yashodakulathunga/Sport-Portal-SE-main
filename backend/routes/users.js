@@ -25,12 +25,12 @@ router.put('/:id', authMiddleware, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    const { firstName, lastName, phone, faculty, studentId } = req.body;
+    const { firstName, lastName, phone, faculty, studentId, profilePhoto } = req.body;
 
     // Only allow specific fields to be updated
     const user = await User.findByIdAndUpdate(
       req.params.id,
-      { firstName, lastName, phone, faculty, studentId },
+      { firstName, lastName, phone, faculty, studentId, profilePhoto },
       { new: true, runValidators: true }
     ).select('-password');
 

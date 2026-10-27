@@ -10,7 +10,8 @@ import {
   Mail,
   ArrowRight,
   Shield,
-  CheckCircle
+  CheckCircle,
+  AlertCircle
 } from "lucide-react";
 
 export default function LoginPage() {
@@ -62,8 +63,8 @@ export default function LoginPage() {
     if (!validateForm()) return;
 
     setIsLoading(true);
+    setErrors(prev => ({ ...prev, form: "" }));
 
-    // Simulate API call
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       const res = await fetch(`${API_URL}/api/auth/login`, {
@@ -72,10 +73,17 @@ export default function LoginPage() {
         body: JSON.stringify(formData)
       });
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (err) {
+        data = { message: "Invalid server response" };
+      }
 
       if (!res.ok) {
-        throw new Error(data.message || "Login failed");
+        setErrors(prev => ({ ...prev, form: data.message || "Invalid credentials" }));
+        setIsLoading(false);
+        return;
       }
 
       // Store user data
@@ -88,7 +96,7 @@ export default function LoginPage() {
       window.location.href = "/";
     } catch (error) {
       console.error("Login error:", error);
-      alert(error.message || "Login failed. Please try again.");
+      setErrors(prev => ({ ...prev, form: "Network error or server is down. Please try again." }));
     } finally {
       setIsLoading(false);
     }
@@ -109,6 +117,12 @@ export default function LoginPage() {
         {/* Login Form */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-8 border border-gray-700">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {errors.form && (
+              <div className="p-3 bg-red-900/30 border border-red-500/50 rounded-lg flex items-start gap-3 text-red-400 text-sm">
+                <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                <span>{errors.form}</span>
+              </div>
+            )}
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">

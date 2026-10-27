@@ -71,19 +71,57 @@ export default function AdminDashboard() {
         setLoading(true);
         try {
             const savedUser = localStorage.getItem("user");
-            if (!savedUser) return;
             const token = localStorage.getItem("token");
+            
+            if (!savedUser || !token) {
+                localStorage.removeItem("user");
+                localStorage.removeItem("token");
+                router.push("/login");
+                return;
+            }
+            
             const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+            const response = await fetch(`${API_URL}/api/admin/users`, {
+                method: 'GET',  
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.removeItem("user");
+                    localStorage.removeItem("token");
+                    router.push("/login");
+                    return;
+                }
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || 'Failed to fetch users');
+            }
+
+            const users = await response.json();
+              
 
             // Helper to fetch and set state with error handling
             const safeFetch = async (endpoint, setter, headers = {}) => {
                 try {
                     const res = await fetch(`${API_URL}/api/${endpoint}`, { headers });
-                    if (!res.ok) throw new Error(`Failed to fetch ${endpoint}`);
+                    if (!res.ok) {
+                        if (res.status === 401) {
+                            localStorage.removeItem("user");
+                            localStorage.removeItem("token");
+                            router.push("/login");
+                            throw new Error('Unauthorized');
+                        }
+                        throw new Error(`Failed to fetch ${endpoint}`);
+                    }
                     const data = await res.json();
                     setter(Array.isArray(data) ? data : (data?.data && Array.isArray(data.data) ? data.data : []));
                 } catch (err) {
                     console.error(`Error fetching ${endpoint}:`, err);
+                    if (err.message === 'Unauthorized') throw err;
                 }
             };
 

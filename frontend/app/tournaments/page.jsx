@@ -16,14 +16,25 @@ import {
   Target,
   Zap,
   X,
-  Medal,
-  Crown
+  Crown,
+  CheckCircle,
+  AlertCircle
 } from "lucide-react";
 
 export default function TournamentsPage() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [selectedTournament, setSelectedTournament] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [registeringTournament, setRegisteringTournament] = useState(null);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [registerSuccess, setRegisterSuccess] = useState(false);
+  const [registerForm, setRegisterForm] = useState({
+    teamName: "",
+    captainName: "",
+    contactEmail: "",
+    contactPhone: ""
+  });
 
   const tournaments = [
     {
@@ -169,8 +180,29 @@ export default function TournamentsPage() {
   };
 
   const handleRegister = (tournamentId) => {
-    // For now, just show an alert. In a real app, this would open a registration form
-    alert(`Registration for tournament ID: ${tournamentId} - Feature coming soon!`);
+    const tournament = tournaments.find(t => t.id === tournamentId);
+    setRegisteringTournament(tournament);
+    setRegisterSuccess(false);
+    setRegisterForm({ teamName: "", captainName: "", contactEmail: "", contactPhone: "" });
+    setShowRegisterModal(true);
+    setShowModal(false);
+  };
+
+  const submitRegistration = (e) => {
+    e.preventDefault();
+    setIsRegistering(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      setIsRegistering(false);
+      setRegisterSuccess(true);
+      
+      // Auto-close after success
+      setTimeout(() => {
+        setShowRegisterModal(false);
+        setRegisterSuccess(false);
+      }, 3000);
+    }, 1500);
   };
 
   return (
@@ -457,8 +489,114 @@ export default function TournamentsPage() {
               </div>
             </div>
           </div>
-        )
-      }
+        )}
+      {/* Registration Modal */}
+      {showRegisterModal && registeringTournament && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white flex justify-between items-start">
+              <div>
+                <h2 className="text-2xl font-black mb-1">Tournament Registration</h2>
+                <p className="text-blue-100 text-sm font-medium">{registeringTournament.title}</p>
+              </div>
+              <button
+                onClick={() => setShowRegisterModal(false)}
+                className="p-2 hover:bg-white/20 rounded-full transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              {registerSuccess ? (
+                <div className="text-center py-8">
+                  <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                    <CheckCircle className="h-8 w-8 text-green-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Registration Successful!</h3>
+                  <p className="text-gray-600">
+                    Your team has been successfully registered for {registeringTournament.title}. 
+                    We will contact you with further details.
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={submitRegistration} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Team Name</label>
+                    <input
+                      required
+                      type="text"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                      placeholder="Enter team name"
+                      value={registerForm.teamName}
+                      onChange={e => setRegisterForm({...registerForm, teamName: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Captain's Name</label>
+                    <input
+                      required
+                      type="text"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                      placeholder="Enter captain's name"
+                      value={registerForm.captainName}
+                      onChange={e => setRegisterForm({...registerForm, captainName: e.target.value})}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-1">Email</label>
+                      <input
+                        required
+                        type="email"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                        placeholder="Contact email"
+                        value={registerForm.contactEmail}
+                        onChange={e => setRegisterForm({...registerForm, contactEmail: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-1">Phone</label>
+                      <input
+                        required
+                        type="tel"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                        placeholder="Contact number"
+                        value={registerForm.contactPhone}
+                        onChange={e => setRegisterForm({...registerForm, contactPhone: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="bg-blue-50 p-4 rounded-lg mt-6 flex gap-3">
+                    <AlertCircle className="h-5 w-5 text-blue-600 shrink-0" />
+                    <p className="text-sm text-blue-800">
+                      By registering, you agree to the tournament rules and format ({registeringTournament.format}).
+                    </p>
+                  </div>
+
+                  <div className="pt-4 flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowRegisterModal(false)}
+                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isRegistering}
+                      className="flex-1 px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition flex items-center justify-center disabled:opacity-70 shadow-lg shadow-blue-200"
+                    >
+                      {isRegistering ? "Submitting..." : "Submit Registration"}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div >
   );
 }

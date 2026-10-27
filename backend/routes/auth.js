@@ -23,6 +23,14 @@ router.post('/signup', async (req, res) => {
       if (existing.studentId === studentId) return res.status(400).json({ message: 'Student ID already registered' });
       return res.status(400).json({ message: 'Username/ID already taken' });
     }
+    const data = await response.json();
+
+    if (response.ok) {
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+
+    // navigate to admin/dashboard
+}
 
     const salt = await bcrypt.genSalt(10);
     const hashed = await bcrypt.hash(password, salt);

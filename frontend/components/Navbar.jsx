@@ -178,7 +178,11 @@ export default function Navbar() {
                 href="/profile"
                 className="flex items-center gap-1.5 text-sm text-blue-600 font-semibold px-2 py-1 rounded-md hover:bg-blue-50"
               >
-                <User size={16} /> {user.name}
+                {user.profilePhoto ? (
+                  <img src={user.profilePhoto} alt={user.name} className="w-6 h-6 rounded-full object-cover border border-blue-200" />
+                ) : (
+                  <User size={16} />
+                )} {user.name}
               </Link>
               {/* Logout Button */}
               <button
@@ -299,7 +303,11 @@ export default function Navbar() {
                     className="flex items-center gap-3 text-base font-medium text-blue-600 py-3 px-2 rounded-md hover:bg-blue-50"
                     onClick={() => setIsOpen(false)}
                   >
-                    <User size={18} /> {user.name}
+                    {user.profilePhoto ? (
+                      <img src={user.profilePhoto} alt={user.name} className="w-6 h-6 rounded-full object-cover border border-blue-200" />
+                    ) : (
+                      <User size={18} />
+                    )} {user.name}
                   </Link>
 
                   <button

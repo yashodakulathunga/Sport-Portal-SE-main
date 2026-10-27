@@ -21,9 +21,21 @@ export default function ProfilePage() {
             lastName: user.lastName || user.name?.split(' ')[1] || '',
             phone: user.phone || '',
             faculty: user.faculty || '',
-            studentId: user.studentId || ''
+            studentId: user.studentId || '',
+            profilePhoto: user.profilePhoto || ''
         });
         setIsEditing(true);
+    };
+
+    const handlePhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData(prev => ({ ...prev, profilePhoto: reader.result }));
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleSave = async (e) => {
@@ -78,9 +90,13 @@ export default function ProfilePage() {
                     {/* Header/Cover */}
                     <div className="h-48 bg-gradient-to-r from-blue-600 to-indigo-700 relative">
                         <div className="absolute -bottom-16 left-10">
-                            <div className="h-32 w-32 rounded-3xl bg-white p-2 shadow-2xl">
-                                <div className="h-full w-full rounded-2xl bg-blue-100 flex items-center justify-center text-blue-600">
-                                    <User size={64} />
+                            <div className="h-32 w-32 rounded-3xl bg-white p-2 shadow-2xl overflow-visible z-10 relative">
+                                <div className="h-full w-full rounded-2xl bg-blue-100 flex items-center justify-center text-blue-600 overflow-hidden">
+                                    {user.profilePhoto ? (
+                                        <img src={user.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <User size={64} />
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -169,6 +185,23 @@ export default function ProfilePage() {
                             <button onClick={() => setIsEditing(false)} className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition">✕</button>
                         </div>
                         <form onSubmit={handleSave} className="space-y-4">
+                            <div className="flex flex-col items-center mb-6">
+                                <div className="h-24 w-24 rounded-2xl bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 overflow-hidden mb-3 relative cursor-pointer hover:border-blue-500 hover:text-blue-500 transition-all">
+                                    {formData.profilePhoto ? (
+                                        <img src={formData.profilePhoto} alt="Preview" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <User size={32} />
+                                    )}
+                                    <input 
+                                        type="file" 
+                                        accept="image/*" 
+                                        onChange={handlePhotoChange} 
+                                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                                        title="Choose a profile photo"
+                                    />
+                                </div>
+                                <span className="text-xs text-slate-500 font-medium">Click to upload photo</span>
+                            </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">First Name</label>
